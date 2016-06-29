@@ -1,0 +1,70 @@
+---
+title: "Megatrends - Neg / Pos Sentiment"
+author: "Alana Lane"
+date: "28 June 2016"
+output: html_document
+---
+
+This is a test document for Megatrends dashboard with R Markdown for NEG / POS SENTIMENT
+Run the following line to return facebook public information -get user with token :
+```{r np_authority}
+library(RCurl)
+library(Rfacebook)
+library(ROAuth)
+library(plyr)
+library(stringr)
+library(dplyr, pos=99) # dplyr and igraph in high position to avoid masking plyr.
+library(igraph, pos=100)
+library(magrittr)
+
+fb_oauth = 'EAAO2eB6VThoBAOTnsBQwhe86oEpYQVZBtmDZAcJ7TvECpQFVq34csJtG0gLZBQWSSM4Mn4iqXjtUrHQnIHauJkKjkYoSmqWAPaZBlLhqSIIQZAZChLR5db72SyYKdNPREFF7bbc0YcWuxZAYWV1F8RbzospKWOwLb8ZD'
+getUsers("me", token=fb_oauth, private_info=TRUE)
+
+```
+
+Get names of returned columns
+Take a peek at the data
+script for pos/neg sentiment 
+Read negative and positive words from text file
+what sort of words are "positive" or "negative".
+Test the Score -Get score in rows and coloms for all posts
+return string value
+return types -create columns to combine score -Assign row count for neg pos values
+create pie chart
+```{r np_sentiment}
+
+uon.page.df <- getPage("TheUniversityofNewcastleAustralia", token=fb_oauth, n=100, since=NULL, until=NULL, feed=TRUE)
+names(uon.page.df) 
+glimpse(uon.page.df) 
+source("Collect/ref/sentiment.r")
+pos <- readLines("Collect/ref/positive_words.txt") # Positive words
+neg <- readLines("Collect/ref/negative_words.txt") # Negative words
+sample(pos, size=10)
+sample(neg, size=10)
+uon.ss <- score.sentiment(sentence  = uon.page.df$message, 
+                          pos.words = pos,        
+                          neg.words = neg)$score  
+
+uon.ss   <- score.sentiment(uon.page.df$message, pos, neg, .progress = 'text')
+class(uon.ss)
+uon.ss$score
+
+st.err <- function(x){
+  return(sd(x) / sqrt(length(x)))
+}
+
+uon.ss[c(1), 'score']
+uon.ss$positive = uon.ss$score > 0
+uon.ss$negative = uon.ss$score <= 0
+negCount <- count(uon.ss$score <=0)
+posCount <- count(uon.ss$score > 0)
+count(uon.ss$score >0)
+
+pole <- c("Negative", "Positive")
+pie(negCount$freq, posCount$freq, labels = pole, radius = 1.0, main = "POS / NEG Sentiment @ UON", rep(1), col = terrain.colors(5))
+
+```
+
+
+```
+

@@ -1,0 +1,78 @@
+---
+title: "Megatrends-Dashboard"
+author: "Alana Lane"
+date: "28 June 2016"
+output: html_document
+---
+
+Libraries
+```{r ts_library}
+
+library(RCurl)
+library(Rfacebook)
+library(ROAuth)
+library(twitteR)
+
+library(httr)
+library(httpuv)
+library(rjson)
+library(DT)
+library(dplyr)
+library(data.table)
+library(reshape2)
+library(ggplot2)
+library(gplots)
+library(plotly)
+
+```
+
+This is a test document for Megatrends dashboard interface with R Markdown for BUZZ WORDS
+Run the following line to return twitter and facebook tokens :
+```{r ts_authority}
+
+source("Collect/Authenticate/AuthenticateWithTwitterAPI.R")
+fb_oauth = 'EAAO2eB6VThoBAOTnsBQwhe86oEpYQVZBtmDZAcJ7TvECpQFVq34csJtG0gLZBQWSSM4Mn4iqXjtUrHQnIHauJkKjkYoSmqWAPaZBlLhqSIIQZAZChLR5db72SyYKdNPREFF7bbc0YcWuxZAYWV1F8RbzospKWOwLb8ZD'
+getUsers("me", token=fb_oauth, private_info=TRUE)
+
+```
+-Get N number of posts from facebook and set table uon_page```
+-Get N number of tweets from Twitter and set table tw_tweets
+-save to data frame
+-Create data table for colums likes_count, shares_count, comments_count
+-load facebook data table uon_page
+-Pull collumns
+-view fb result if required
+-Create data table for colums favoriteCount, retweetCount
+-open data table tw_tweets
+-gcreate table tw_resultsand add colums 3 and 12
+-view TW result if required
+-Merge table for output ts_result
+```{r top_source}
+
+uon_page <- getPage(page = "TheUniversityofNewcastleAustralia", token = fb_oauth, n = 100)
+tw_timeline <- userTimeline('Uni_Newcastle', n=100)
+tw_tweets <- twListToDF(tw_timeline)
+
+datatable(head(uon_page), class = 'cell-border stripe')
+fb_result = uon_page[ , c( 8, 10)]
+head(fb_result)
+
+datatable(head(tw_tweets), class = 'cell-border stripe')
+tw_result = tw_tweets[ , c( 3, 12)]
+head(tw_result)
+
+ts_result = merge(fb_result, tw_result)
+head(ts_result)
+
+ts_m = as.matrix(ts_result)
+
+counts <- table(ts_m)
+head(counts)
+
+my_cols <- c("darkblue", "yellow", "green", "lavender")
+barplot(ts_m, space = 1.5, axisnames = TRUE, col = my_cols, legend = colnames(ts_m), ylim = c(0, 100000))
+
+
+```
+
+

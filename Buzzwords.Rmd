@@ -1,0 +1,73 @@
+---
+title: "Megatrends - Buzzwords"
+author: "Alana Lane"
+date: "28 June 2016"
+output: html_document
+---
+
+This is a test document for Megatrends dashboard interface with R Markdown for BUZZ WORDS
+Run the following line to return twitter token :
+```{r bw_authority}
+
+source("Collect/Authenticate/AuthenticateWithTwitterAPI.R")
+
+```
+
+Libraries
+```{r bw_library}
+
+library(twitteR)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(ggplot2)
+library(SnowballC)
+library(RColorBrewer)
+library(shiny)
+library(devtools)
+library(stringr)
+library(RCurl)
+library(XML)
+library(bitops)
+library(NLP)
+
+```
+Collect tweets containing 'Uni_Newcastle'
+-Extract text content of all the tweets
+-In tm package, the documents are managed by a structure called Corpus
+-Create a term-document matrix from a corpus 
+-ENTER STOP WORDS FILTER
+-Convert as matrix tw_m
+-Get word counts in decreasing order
+-Create data frame with words and their frequencies
+-Plot wordcloud
+-ave the image in png format
+-Make the wordcloud drawing predictable during a session
+
+```{r bw_buzzwords}
+
+word_tweets = searchTwitter("Uni_Newcastle", n=100, lang="en")
+word_text = sapply(word_tweets, function(x) x$getText())
+tw_words = Corpus(VectorSource(word_text))
+tw_tdm = TermDocumentMatrix(tw_words,
+                            control = list(removePunctuation = TRUE,
+                                           stopwords = c("http", "amp", "httpstco.", "https", "httpstco..", "httpstco...", "Newcastle", "UniNewcastle", "Uni", "uni","text", "url", "file", "that", "all", "from", "has","was", "yes", "for", "and", "the", "that", "this", stopwords("english")),
+                                           removeNumbers = TRUE, tolower = FALSE))
+
+
+tw_m = as.matrix(tw_tdm)
+word_freqs = sort(rowSums(tw_m), decreasing=TRUE) 
+tw_dm = data.frame(word=names(word_freqs), freq=word_freqs)
+head(word_freqs, 10)
+
+
+
+wordcloud(tw_dm$word, max.words = 100, tw_dm$freq, random.order=FALSE, colors=brewer.pal(7, "YlGnBu"))
+png("Collect/words/UONCloud.png", width=12, height=8, units="in", res=300)
+wordcloud(tw_dm$word, max.words = 100,  tw_dm$freq, random.order=FALSE, colors=brewer.pal(7, "YlGnBu"))
+dev.off()
+wordcloud_rep <- repeatable(wordcloud)
+
+```
+```
+

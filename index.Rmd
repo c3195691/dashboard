@@ -1,0 +1,21 @@
+---
+title: "Megatrends-Dashboard"
+author: "Alana Lane"
+date: "28 June 2016"
+output: html_document
+---
+install.packages("rmarkdown", type = "source")
+
+Libraries
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
